@@ -1,17 +1,19 @@
 const MAX_RBG_NUMBER = 255
 
 export default class RGB {
-  constructor(r, b, g) {
+  constructor(r, b, g, correct) {
     this.r = r
     this.g = g
     this.b = b
+    this.correct = correct
   }
 
   static generate() {
     return new RGB(
       randomNumber({ max: MAX_RBG_NUMBER }),
       randomNumber({ max: MAX_RBG_NUMBER }),
-      randomNumber({ max: MAX_RBG_NUMBER })
+      randomNumber({ max: MAX_RBG_NUMBER }),
+      true
     )
   }
 
@@ -31,8 +33,13 @@ export default class RGB {
         startingValue: this.b,
         maxCutOff: MAX_RBG_NUMBER,
         ...options,
-      })
+      }),
+      false
     )
+  }
+
+  toCss() {
+    return `rgb(${this.r},${this.g},${this.b})`
   }
 }
 
