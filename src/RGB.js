@@ -1,11 +1,10 @@
 const MAX_RBG_NUMBER = 255
 
 export default class RGB {
-  constructor(r, b, g, correct) {
+  constructor(r, b, g) {
     this.r = r
     this.g = g
     this.b = b
-    this.correct = correct
   }
 
   static generate() {
@@ -33,8 +32,7 @@ export default class RGB {
         startingValue: this.b,
         maxCutOff: MAX_RBG_NUMBER,
         ...options,
-      }),
-      false
+      })
     )
   }
 
@@ -43,11 +41,7 @@ export default class RGB {
   }
 }
 
-function randomNumber({ min = 0, max }) {
-  return Math.floor(Math.random() * (max - min + 1)) + min
-}
-
-function randomNumberInRange({
+function validRanges({
   startingValue,
   maxCutOff,
   withinTolerance,
@@ -73,7 +67,19 @@ function randomNumberInRange({
     ranges.push({ min: belowRangeMin, max: belowRangeMax })
   }
 
-  const range = ranges[randomNumber({ max: ranges.length - 1 })]
+  return ranges
+}
+
+/** Generates a random integer value between a valid range according to the difficulty selected. */
+function randomNumberInRange(options) {
+  const ranges = validRanges(options)
+
+  const range = ranges[randomNumber({ max: ranges.length - 1 })] // max = 0 (1 - 1) -> ranges[randonNumber(0)] -> ranges[0]
 
   return randomNumber(range)
+}
+
+/** Generates a random integer value between 0 and 255. */
+function randomNumber({ min = 0, max }) {
+  return Math.floor(Math.random() * (max - min + 1)) + min
 }

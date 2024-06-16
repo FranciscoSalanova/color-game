@@ -14,6 +14,8 @@ const DIFFICULTY_MAP = {
   hard: { withinTolerance: 0.9, outsideTolerance: 0.2 },
 }
 
+render()
+
 document.addEventListener("change", (e) => {
   if (e.target.matches('input[type="radio"]')) {
     render()
@@ -21,24 +23,45 @@ document.addEventListener("change", (e) => {
 })
 
 function render() {
-  const colorGrid = document.querySelector(".color-grid")
+  const colorGrid = document.querySelector("[data-color-grid]")
   colorGrid.innerHTML = ""
 
-  const format = document.querySelector('input[name="format"][checked]').value
-  const difficulty = document.querySelector(
-    'input[name="difficulty"][checked]'
-  ).value
-  const colors = generateColors({ format, difficulty })
+  const result = document.querySelector("[data-results]")
+  result.classList.add("hide")
+
+  const format = document.querySelector('[name="format"]:checked').value
+  const difficulty = document.querySelector('[name="difficulty"]:checked').value
+  const { colors, correctColor } = generateColors({ format, difficulty })
   console.log(colors)
 
-  const colorString = document.querySelector(".color-string")
-  colorString.textContent = colors
-    .find((color) => color.correct === true)
-    .toCss()
+  const colorString = document.querySelector("[data-color-string]")
+  colorString.textContent = correctColor.toCss()
 
-  colors.forEach((color) => {
-    const element = document.createElement("button")
-    element.style.backgroundColor = color.toCss()
+  const colorElements = colors
+    .sort(() => Math.random() - 0.5)
+    .map((color) => {
+      const element = document.createElement("button")
+      element.style.backgroundColor = color.toCss()
+
+      return { color, element }
+    })
+
+  const resultText = document.querySelector("[data-results-text]")
+  const nextButton = document.querySelector("[data-next-button]")
+
+  colorElements.forEach(({ color, element }) => {
+    element.addEventListener("click", () => {
+      result.classList.remove("hide")
+      nextButton.addEventListener("click", () => render())
+
+      resultText.textContent =
+        color.toCss() === correctColor.toCss() ? "Correct" : "Wrong"
+
+      colorElements.forEach(({ color: c, element: e }) => {
+        e.disabled
+        e.classList.toggle("wrong", c !== correctColor)
+      })
+    })
     colorGrid.appendChild(element)
   })
 }
@@ -52,25 +75,6 @@ function generateColors({ format, difficulty }) {
   for (let i = 0; i < 5; i++) {
     colors.push(correctColor.generateSimilar(difficultyRules))
   }
-  shuffleColors(colors)
 
-  return colors
+  return { colors, correctColor }
 }
-
-function shuffleColors(array) {
-  let currentIndex = array.length
-
-  while (currentIndex !== 0) {
-    // Pick a remaining element...
-    const randomIndex = Math.floor(Math.random() * currentIndex)
-    currentIndex--
-
-    // Swap it with the current element.
-    ;[array[currentIndex], array[randomIndex]] = [
-      array[randomIndex],
-      array[currentIndex],
-    ]
-  }
-}
-
-render()
